@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 type User = {
   id: number;
@@ -16,6 +17,7 @@ type UsersTableProps = {
 };
 
 export default function UsersTable({ users }: UsersTableProps) {
+  const router = useRouter();
   const [query, setQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('name-asc');
 
@@ -85,7 +87,18 @@ export default function UsersTable({ users }: UsersTableProps) {
 
             <tbody className="divide-y divide-slate-100">
               {filteredUsers.map((user) => (
-                <tr key={user.id} className="hover:bg-slate-50">
+                <tr
+                  key={user.id}
+                  className="cursor-pointer hover:bg-slate-50 focus-within:bg-slate-50"
+                  onClick={() => router.push(`/users/${user.id}`)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      router.push(`/users/${user.id}`);
+                    }
+                  }}
+                  tabIndex={0}
+                >
                   <td className="px-4 py-3 text-sm font-medium text-slate-900">{user.name}</td>
                   <td className="px-4 py-3 text-sm text-slate-700">{user.email}</td>
                   <td className="px-4 py-3 text-sm text-sky-700">
