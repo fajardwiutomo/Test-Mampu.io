@@ -1,4 +1,10 @@
+import type { Metadata } from 'next';
 import UsersTable from './users-table';
+
+export const metadata: Metadata = {
+  title: 'Users List | User Operations Workspace',
+  description: 'View and manage all users in the workspace',
+};
 
 type User = {
   id: number;

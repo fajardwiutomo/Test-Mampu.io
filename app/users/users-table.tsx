@@ -181,15 +181,13 @@ export default function UsersTable({
 
             <tbody className="divide-y divide-slate-100">
               {paginatedUsers.map((user) => (
-                <tr key={user.id} className="hover:bg-slate-50">
+                <tr 
+                  key={user.id} 
+                  onClick={() => goToDetails(user.id)}
+                  className="hover:bg-slate-50 cursor-pointer transition-colors"
+                >
                   <td className="px-4 py-3 text-sm font-medium text-slate-900">
-                    <button
-                      type="button"
-                      onClick={() => goToDetails(user.id)}
-                      className="rounded text-left underline-offset-2 hover:underline focus:outline-none focus:ring-2 focus:ring-sky-500"
-                    >
-                      {user.name}
-                    </button>
+                    {user.name}
                   </td>
                   <td className="px-4 py-3 text-sm text-slate-700">{user.email}</td>
                   <td className="px-4 py-3 text-sm text-sky-700 break-all">{user.website}</td>
