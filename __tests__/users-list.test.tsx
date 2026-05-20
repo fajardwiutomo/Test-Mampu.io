@@ -93,7 +93,13 @@ describe('Users List', () => {
     ];
 
     render(
-      <UsersTable users={users} initialQuery="" initialSort="name-asc" initialFilter="all" />
+      <UsersTable
+        users={users}
+        initialQuery=""
+        initialSort="name-asc"
+        initialFilter="all"
+        initialPage="1"
+      />
     );
 
     fireEvent.change(screen.getByLabelText(/search users/i), {
@@ -146,7 +152,13 @@ describe('Users List', () => {
     ];
 
     render(
-      <UsersTable users={users} initialQuery="zzz" initialSort="name-asc" initialFilter="all" />
+      <UsersTable
+        users={users}
+        initialQuery="zzz"
+        initialSort="name-asc"
+        initialFilter="all"
+        initialPage="1"
+      />
     );
     expect(screen.getByText(/no users matched/i)).toBeInTheDocument();
   });

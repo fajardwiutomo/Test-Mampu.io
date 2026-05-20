@@ -23,11 +23,11 @@ export type EnrichedUser = User & {
 };
 
 type UsersPageProps = {
-  searchParams: Promise<{ search?: string; sort?: string; filter?: string }>;
+  searchParams: Promise<{ search?: string; sort?: string; filter?: string; page?: string }>;
 };
 
 async function fetchJson<T>(url: string): Promise<T> {
-  const response = await fetch(url, { cache: 'no-store' });
+  const response = await fetch(url, { next: { revalidate: 60 } });
 
   if (!response.ok) {
     throw new Error(`Failed to fetch ${url}`);
@@ -74,6 +74,7 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
         initialQuery={params.search ?? ''}
         initialSort={params.sort ?? 'name-asc'}
         initialFilter={params.filter ?? 'all'}
+        initialPage={params.page ?? '1'}
       />
     </main>
   );

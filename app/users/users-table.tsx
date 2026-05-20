@@ -13,6 +13,7 @@ type UsersTableProps = {
   initialQuery: string;
   initialSort: string;
   initialFilter: string;
+  initialPage: string;
 };
 
 const validSorts: SortOption[] = ['name-asc', 'name-desc', 'most-pending'];
@@ -23,6 +24,7 @@ export default function UsersTable({
   initialQuery,
   initialSort,
   initialFilter,
+  initialPage,
 }: UsersTableProps) {
   const router = useRouter();
   const [query, setQuery] = useState(initialQuery);
@@ -34,6 +36,10 @@ export default function UsersTable({
       ? (initialFilter as ActivityFilter)
       : 'all'
   );
+  const [page, setPage] = useState<number>(() => {
+    const parsed = Number(initialPage);
+    return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : 1;
+  });
 
   const filteredUsers = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -85,6 +91,9 @@ export default function UsersTable({
     if (activityFilter !== 'all') {
       params.set('filter', activityFilter);
     }
+    if (page > 1) {
+      params.set('page', String(page));
+    }
 
     const queryString = params.toString();
     const target = queryString ? `/users/${userId}?${queryString}` : `/users/${userId}`;
@@ -93,6 +102,11 @@ export default function UsersTable({
   };
 
   const resultCount = filteredUsers.length;
+  const pageSize = 5;
+  const totalPages = Math.max(1, Math.ceil(resultCount / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const start = (currentPage - 1) * pageSize;
+  const paginatedUsers = filteredUsers.slice(start, start + pageSize);
 
   return (
     <>
@@ -102,7 +116,10 @@ export default function UsersTable({
           <input
             type="text"
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setPage(1);
+            }}
             placeholder="Search by name or email"
             className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none ring-sky-500 focus:ring-2"
             aria-label="Search users by name or email"
@@ -113,7 +130,10 @@ export default function UsersTable({
           Activity Filter
           <select
             value={activityFilter}
-            onChange={(event) => setActivityFilter(event.target.value as ActivityFilter)}
+            onChange={(event) => {
+              setActivityFilter(event.target.value as ActivityFilter);
+              setPage(1);
+            }}
             className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none ring-sky-500 focus:ring-2"
             aria-label="Filter users by activity"
           >
@@ -127,7 +147,10 @@ export default function UsersTable({
           Sort
           <select
             value={sortBy}
-            onChange={(event) => setSortBy(event.target.value as SortOption)}
+            onChange={(event) => {
+              setSortBy(event.target.value as SortOption);
+              setPage(1);
+            }}
             className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none ring-sky-500 focus:ring-2"
             aria-label="Sort users"
           >
@@ -139,7 +162,7 @@ export default function UsersTable({
       </section>
 
       <p className="mb-3 text-sm text-slate-600" aria-live="polite">
-        Showing {resultCount} user{resultCount === 1 ? '' : 's'}
+        Showing {resultCount} user{resultCount === 1 ? '' : 's'} • Page {currentPage} of {totalPages}
       </p>
 
       <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
@@ -157,7 +180,7 @@ export default function UsersTable({
             </thead>
 
             <tbody className="divide-y divide-slate-100">
-              {filteredUsers.map((user) => (
+              {paginatedUsers.map((user) => (
                 <tr key={user.id} className="hover:bg-slate-50">
                   <td className="px-4 py-3 text-sm font-medium text-slate-900">
                     <button
@@ -180,7 +203,7 @@ export default function UsersTable({
         </div>
 
         <div className="space-y-3 p-4 md:hidden">
-          {filteredUsers.map((user) => (
+          {paginatedUsers.map((user) => (
             <button
               key={user.id}
               type="button"
@@ -205,6 +228,26 @@ export default function UsersTable({
           </p>
         ) : null}
       </section>
+      {filteredUsers.length > 0 ? (
+        <nav className="mt-4 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+            className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Previous
+          </button>
+          <button
+            type="button"
+            onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages}
+            className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Next
+          </button>
+        </nav>
+      ) : null}
     </>
   );
 }

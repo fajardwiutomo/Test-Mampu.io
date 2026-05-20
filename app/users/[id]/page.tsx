@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 
 type UserDetailsPageProps = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ search?: string; sort?: string; filter?: string }>;
+  searchParams: Promise<{ search?: string; sort?: string; filter?: string; page?: string }>;
 };
 
 type UserDetails = {
@@ -106,6 +106,7 @@ export default async function UserDetailsPage({ params, searchParams }: UserDeta
   if (preserved.search) backParams.set('search', preserved.search);
   if (preserved.sort) backParams.set('sort', preserved.sort);
   if (preserved.filter) backParams.set('filter', preserved.filter);
+  if (preserved.page) backParams.set('page', preserved.page);
   const backToListHref = backParams.toString() ? `/users?${backParams.toString()}` : '/users';
 
   return (
