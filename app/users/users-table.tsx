@@ -183,11 +183,20 @@ export default function UsersTable({
               {paginatedUsers.map((user) => (
                 <tr 
                   key={user.id} 
+                  tabIndex={0}
                   onClick={() => goToDetails(user.id)}
-                  className="hover:bg-slate-50 cursor-pointer transition-colors"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      goToDetails(user.id);
+                    }
+                  }}
+                  className="hover:bg-slate-50 cursor-pointer transition-colors focus:outline-none focus:bg-slate-50 focus:ring-2 focus:ring-sky-500"
                 >
                   <td className="px-4 py-3 text-sm font-medium text-slate-900">
-                    {user.name}
+                    <span className="underline-offset-2 group-hover:underline">
+                      {user.name}
+                    </span>
                   </td>
                   <td className="px-4 py-3 text-sm text-slate-700">{user.email}</td>
                   <td className="px-4 py-3 text-sm text-sky-700 break-all">{user.website}</td>
