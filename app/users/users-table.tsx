@@ -92,6 +92,8 @@ export default function UsersTable({
     router.push(target);
   };
 
+  const resultCount = filteredUsers.length;
+
   return (
     <>
       <section className="mb-4 grid gap-3 rounded-xl border border-slate-200 bg-white p-4 sm:grid-cols-3">
@@ -103,6 +105,7 @@ export default function UsersTable({
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search by name or email"
             className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none ring-sky-500 focus:ring-2"
+            aria-label="Search users by name or email"
           />
         </label>
 
@@ -112,6 +115,7 @@ export default function UsersTable({
             value={activityFilter}
             onChange={(event) => setActivityFilter(event.target.value as ActivityFilter)}
             className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none ring-sky-500 focus:ring-2"
+            aria-label="Filter users by activity"
           >
             <option value="all">All users</option>
             <option value="has-pending">Has pending todos</option>
@@ -125,6 +129,7 @@ export default function UsersTable({
             value={sortBy}
             onChange={(event) => setSortBy(event.target.value as SortOption)}
             className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none ring-sky-500 focus:ring-2"
+            aria-label="Sort users"
           >
             <option value="name-asc">Name (A-Z)</option>
             <option value="name-desc">Name (Z-A)</option>
@@ -133,37 +138,38 @@ export default function UsersTable({
         </label>
       </section>
 
+      <p className="mb-3 text-sm text-slate-600" aria-live="polite">
+        Showing {resultCount} user{resultCount === 1 ? '' : 's'}
+      </p>
+
       <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="overflow-x-auto">
+        <div className="hidden overflow-x-auto md:block">
           <table className="min-w-full divide-y divide-slate-200">
             <thead className="bg-slate-50">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Name</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Email</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Website</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Posts</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Completed</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Pending</th>
+                <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Name</th>
+                <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Email</th>
+                <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Website</th>
+                <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Posts</th>
+                <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Completed</th>
+                <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Pending</th>
               </tr>
             </thead>
 
             <tbody className="divide-y divide-slate-100">
               {filteredUsers.map((user) => (
-                <tr
-                  key={user.id}
-                  className="cursor-pointer hover:bg-slate-50 focus-within:bg-slate-50"
-                  onClick={() => goToDetails(user.id)}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                      event.preventDefault();
-                      goToDetails(user.id);
-                    }
-                  }}
-                  tabIndex={0}
-                >
-                  <td className="px-4 py-3 text-sm font-medium text-slate-900">{user.name}</td>
+                <tr key={user.id} className="hover:bg-slate-50">
+                  <td className="px-4 py-3 text-sm font-medium text-slate-900">
+                    <button
+                      type="button"
+                      onClick={() => goToDetails(user.id)}
+                      className="rounded text-left underline-offset-2 hover:underline focus:outline-none focus:ring-2 focus:ring-sky-500"
+                    >
+                      {user.name}
+                    </button>
+                  </td>
                   <td className="px-4 py-3 text-sm text-slate-700">{user.email}</td>
-                  <td className="px-4 py-3 text-sm text-sky-700">{user.website}</td>
+                  <td className="px-4 py-3 text-sm text-sky-700 break-all">{user.website}</td>
                   <td className="px-4 py-3 text-sm text-slate-700">{user.totalPosts}</td>
                   <td className="px-4 py-3 text-sm text-emerald-700">{user.completedTodos}</td>
                   <td className="px-4 py-3 text-sm text-amber-700">{user.pendingTodos}</td>
@@ -173,8 +179,30 @@ export default function UsersTable({
           </table>
         </div>
 
+        <div className="space-y-3 p-4 md:hidden">
+          {filteredUsers.map((user) => (
+            <button
+              key={user.id}
+              type="button"
+              onClick={() => goToDetails(user.id)}
+              className="w-full rounded-lg border border-slate-200 p-4 text-left shadow-sm transition hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500"
+            >
+              <p className="text-sm font-semibold text-slate-900">{user.name}</p>
+              <p className="mt-1 break-all text-sm text-slate-700">{user.email}</p>
+              <p className="mt-1 break-all text-xs text-sky-700">{user.website}</p>
+              <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
+                <span className="rounded bg-slate-100 px-2 py-1 text-slate-700">Posts: {user.totalPosts}</span>
+                <span className="rounded bg-emerald-50 px-2 py-1 text-emerald-700">Done: {user.completedTodos}</span>
+                <span className="rounded bg-amber-50 px-2 py-1 text-amber-700">Pending: {user.pendingTodos}</span>
+              </div>
+            </button>
+          ))}
+        </div>
+
         {filteredUsers.length === 0 ? (
-          <p className="px-4 py-6 text-sm text-slate-600">No users matched your current search/filter.</p>
+          <p className="px-4 py-8 text-center text-sm text-slate-600">
+            No users matched your current search/filter. Try changing search keyword or activity filter.
+          </p>
         ) : null}
       </section>
     </>
